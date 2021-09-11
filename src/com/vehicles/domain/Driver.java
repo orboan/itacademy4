@@ -20,6 +20,36 @@ public class Driver extends Person {
 	
 	@Override
 	public String toString() {
-		return super.toString() + " - License id: " + this.license.getID();
+		return super.toString() + " - License id: " + this.license.getId();
+	}
+	
+
+	@Override
+	public boolean equals(Object o) {
+	    if(o == null)
+	    {
+	        return false;
+	    }
+	    if (o == this)
+	    {
+	        return true;
+	    }
+	    if (getClass() != o.getClass())
+	    {
+	        return false;
+	    }
+	     
+	    //La llicència és única per a cada usuari
+	    Driver d = (Driver) o;
+	    return (this.getLicense().getId().equals(d.getLicense().getId()));
+	}
+	
+	@Override
+	public int hashCode()
+	{
+	    final int PRIME = 37;
+	    int result = 3;
+	    result = PRIME * result + this.getLicense().getId().hashCode();
+	    return result;
 	}
 }

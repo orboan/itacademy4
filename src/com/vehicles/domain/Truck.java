@@ -6,6 +6,8 @@ public class Truck extends Vehicle{
 
 	private final int NUMBER_OF_WHEELS = 8;
 	
+	public Truck() {}
+	
 	public Truck(String plate, String brand, String color) {
 		super(plate, brand, color);
 		// TODO Auto-generated constructor stub

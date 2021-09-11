@@ -10,8 +10,10 @@ public abstract class Vehicle {
 	protected String color;
 	protected List<Wheel> wheels = new ArrayList<Wheel>();
 	protected Holder holder;
-	protected Driver driver;
+	protected List<Driver> drivers = new ArrayList<>();
 
+	public Vehicle() {}
+	
 	public Vehicle(String plate, String brand, String color) {
 		this.plate = plate;
 		this.brand = brand;
@@ -50,18 +52,10 @@ public abstract class Vehicle {
 		this.holder = holder;
 	}
 
-	
-
-	public Driver getDriver() {
-		return driver;
+	public List<Driver> getDrivers() {
+		return drivers;
 	}
 
-
-	public void setDriver(Driver driver) {
-		this.driver = driver;
-	}
-
-	
 
 	public String getPlate() {
 		return plate;
@@ -81,9 +75,39 @@ public abstract class Vehicle {
 		sb.append("\n> Front wheels: ");
 		sb.append("\n\t* brand: " + this.wheels.get(0).getBrand());
 		sb.append("\n\t* diameter: " + this.wheels.get(0).getDiameter());
-		sb.append("\nNúmero total de rodes: " + this.wheels.size());
-		sb.append("\nTitular: " + this.holder.toString());
+		sb.append("\nNúmero total de rodes: " + this.wheels.size() + "\n");
+		if(this.holder != null)
+			sb.append("Titular: " + this.holder.toString());
 		return sb.toString();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+	    if(o == null)
+	    {
+	        return false;
+	    }
+	    if (o == this)
+	    {
+	        return true;
+	    }
+	    if (getClass() != o.getClass())
+	    {
+	        return false;
+	    }
+	     
+	    //La llicència és única per a cada usuari
+	    Vehicle v = (Vehicle) o;
+	    return (this.getPlate().equals(v.getPlate()));
+	}
+	
+	@Override
+	public int hashCode()
+	{
+	    final int PRIME = 41;
+	    int result = 7;
+	    result = PRIME * result + this.getPlate().hashCode();
+	    return result;
+	}
+	
 }

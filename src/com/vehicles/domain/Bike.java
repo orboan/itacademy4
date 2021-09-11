@@ -6,6 +6,8 @@ public class Bike extends Vehicle {
 	
 	private final int NUMBER_OF_WHEELS = 2;
 
+	public Bike() {};
+	
 	public Bike(String plate, String brand, String color) {
 		super(plate, brand, color);
 	}
