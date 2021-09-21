@@ -20,7 +20,8 @@ public class Driver extends Person {
 	
 	@Override
 	public String toString() {
-		return super.toString() + " - License id: " + this.license.getId();
+		return super.toString() + " - License id: " + this.license.getId()
+		 + " - License Type: " + this.license.getType();
 	}
 	
 

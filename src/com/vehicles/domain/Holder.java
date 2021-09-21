@@ -32,6 +32,6 @@ public class Holder extends Driver {
 	
 	@Override
 	public String toString() {
-		return super.toString() + " License Type: " + this.license.getType();
+		return super.toString() + " - És TITULAR";
 	}
 }
