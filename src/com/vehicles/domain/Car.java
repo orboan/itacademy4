@@ -1,3 +1,7 @@
+/**
+ * @author Oriol Boix Anfosso <orboan@gmail.com>
+ *
+ */
 package com.vehicles.domain;
 
 import java.util.List;

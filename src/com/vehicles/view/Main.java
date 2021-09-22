@@ -1,3 +1,7 @@
+/**
+ * @author Oriol Boix Anfosso <orboan@gmail.com>
+ *
+ */
 package com.vehicles.view;
 
 import java.text.ParseException;
@@ -36,18 +40,24 @@ public class Main {
 		Boolean quit = false;
 		Vehicle v = null;
 
-		// Creació dels vehicles
+		// main
 		while (true) {
 
-			int menuSelection = showMainMenu(in);
+			int menuSelection = showMainMenu(in); //main menu
+												//opcions:
+												//- crear usuari
+												//- crear vehicle
+												//- llistar usuaris
+												//- llistar vehicles
+												//sortir
 
-			boolean added = false;
+			boolean added = false; //flag per a vehicle o usuari afegit a la llista
 
 			if (menuSelection == -1) {
 				println(messages.goodBye);
 				break;
 			} else if (menuSelection == 1) { // CREAR USUARI
-				menuSelection = showUsersMenu(in);
+				menuSelection = showUsersMenu(in); //menu per a crear usuaris (opcions: titular o conductor)
 				if (menuSelection == -1) {
 					println(messages.goodBye);
 					break;
@@ -57,9 +67,9 @@ public class Main {
 					// primer pregunta si vol assignar un vehicle a l'usuari a crear
 
 					int assignVehicleMenuSelection;
-					if (menuSelection == 1) // Si és titular, escull si vol vehicle o no
+					if (menuSelection == 1) // Si és titular, escull **si vol** vehicle o no
 						assignVehicleMenuSelection = showWannaAssignVehicleToUserMenu(in);
-					else {// si és conductor, és obligatori seleccionar vehicle
+					else {// si és conductor, **és obligatori** seleccionar vehicle
 						assignVehicleMenuSelection = 1;
 						println(messages.vehicleMandatoryForDriverInfo);
 					}
@@ -77,7 +87,10 @@ public class Main {
 							if (menuSelection == 0)
 								continue;
 							goToMainMenu = false;
+							
+							//Generació d'un nou vehicle
 							v = setNewVehicleInstance(in, menuSelection, v, goToMainMenu, quit, null);
+							
 							if (quit) {
 								println(messages.goodBye);
 								break;
@@ -91,9 +104,14 @@ public class Main {
 							// Guarda el vehicle
 							getVehicles().add(v);
 							println(messages.vehicleAddedInfo);// feedback
+							
+							//Tornem al menu principal, seleccionarem de nou crear usuari i podrem,
+							//ara, seleccionar el vehicle ja creat de la llista de vehicles
 							continue;
-						} else {
-							// Abans de crear un usuari, cal seleccionar un vehicle
+							
+						} else { //Si la llista de vehicles NO és buida
+							// Abans de crear un usuari, cal seleccionar un vehicle de la llista
+							// (obligatori per a conductors, opcional per a titulars)
 							int vehicleSelection = showSelectVehiclesMenu(in, getVehicles());
 							if (vehicleSelection == -1) {
 								println(messages.goodBye);
@@ -102,12 +120,13 @@ public class Main {
 							if (vehicleSelection == -2) {
 								continue;
 							}
-							v = getVehicles().get(vehicleSelection - 1);
-							println("Selected vehicle is: " + v.getPlate());
+							v = getVehicles().get(vehicleSelection - 1); //retorna vehicle seleccionat
+							println("Selected vehicle is: " + v.getPlate()); //feedback
 
-							if (menuSelection == 1) { // S'ha seleccionat crear un titular
+							
+							if (menuSelection == 1) { // Si s'ha seleccionat crear un titular
 								Holder holder;
-								boolean wannaBeDriver = false;
+								boolean wannaBeDriver = false; //al final preguntarem si volem que el titular sigui conductor
 
 								// Comprova si el vehicle seleccionat ja té titular o no
 								boolean holderExists = checkHolder(v);
@@ -117,17 +136,17 @@ public class Main {
 									// Pregunta si es crea un nou titular que sobreescriurà l'existent
 									menuSelection = showOverwriteHolderMenu(in, v);
 
-									if (menuSelection == 1) {
+									if (menuSelection == 1) { //Sobreescriu el titular ja existent
 										holder = buildHolder(in, v); // Creació d'un titular (cal llicència compatible)
 										setHolderToVehicle(holder, v); // (Sobreescriu) Assignació del titular al
-																		// vehicle
-																		// escollit
+																		// vehicle escollit
 										added = addUserIfNotExists(holder, getUsers());// Intenta afegir el titular al
-																						// repositori
+																						// repositori (si no existeix ja)
 										if (added)
 											println(messages.userAddedInfo);// feedback
 
-										wannaBeDriver = showWannaBeDriverMenu(in, v);
+										wannaBeDriver = showWannaBeDriverMenu(in, v); //Donem opció a que el titular 
+																					  //pugui ser també conductor
 										if (wannaBeDriver) {
 											added = addDriverIfNotExists(holder, v);// Intenta afegir el
 																					// titular com a
@@ -138,8 +157,7 @@ public class Main {
 														holder.getName(), holder.getSurname(), v.getPlate())); // feedback
 
 										} else if (menuSelection == 2) { // No creem cap titular i mantenim el que ja té
-																			// el
-																			// vehicle
+																			// el vehicle
 											println(String.format(messages.holderNotUpdatedInfo, v.getPlate()));// feedback
 										}
 									}
@@ -149,7 +167,7 @@ public class Main {
 									setHolderToVehicle(holder, v); // Assignació del titular al vehicle escollit
 
 									added = addUserIfNotExists(holder, getUsers());// Intenta afegir el titular al
-																					// repositori
+																					// repositori o llista
 									if (added)
 										println(messages.userAddedInfo);// feedback
 
@@ -165,6 +183,7 @@ public class Main {
 									}
 								}
 							} else if (menuSelection == 2) { // S'ha seleccionat crear un conductor
+															//(Ja hem seleccionat el vehicle v)
 								Driver driver = buildDriver(in, v); // Crea conductor (cal llicència compatible)
 
 								added = addDriverIfNotExists(driver, v);// Intenta afegir el conductor al
@@ -173,12 +192,14 @@ public class Main {
 									println(String.format(messages.driverAddedInfo, v.getPlate()));// feedback
 
 								added = addUserIfNotExists(driver, getUsers());// Intenta afegir el conductor al
-																				// repositori
+																				// repositori o llista
 								if (added)
 									println(messages.userAddedInfo);// feedback
 							}
 						}
-					} else if (assignVehicleMenuSelection == 2) { // No vol assignar cap vehicle a l'usuari a crear
+					} else if (assignVehicleMenuSelection == 2) { // No es vol assignar cap vehicle **al titular** 
+																	// a crear
+																	//(per al conductor és obligatori)
 						if (menuSelection == 1) { // S'ha seleccionat crear un titular
 							Holder holder;
 							boolean wannaBeDriver = false;
@@ -186,39 +207,25 @@ public class Main {
 							holder = buildHolder(in); // Creació d'un titular
 
 							added = addUserIfNotExists(holder, getUsers());// Intenta afegir el titular al
-																			// repositori
+																			// repositori o llista
 							if (added)
 								println(messages.userAddedInfo);// feedback
 
-							wannaBeDriver = showWannaBeDriverMenu(in);
-							if (wannaBeDriver) { // Si es vol ser conductor, cal seleccionar un vehicle
+							wannaBeDriver = showWannaBeDriverMenu(in); //Opció que el titular sigui conductor
+							if (wannaBeDriver) { // Si es vol ser conductor, **cal seleccionar** un vehicle
 
 								// Inici Selecció o creació del vehicle ########
-								int size = getVehicles().size();
-								if (size == 0) { // Si no existeix cap vehicle, cal crear-ne almenys un.
-									println(messages.emptyVehiclesListError);
-									Map<Vehicle, Integer> pair = createNewVehicle(in, holder.getLicense().getType());
-									int code = 1;
-									for (var entry : pair.entrySet()) {
-										v = entry.getKey();
-										code = entry.getValue();
-									}
-									if (code == -1)
-										break;
-									if (code == 0)
-										continue;
-								} else { // seleccionem un vehicle de la llista
-									int vehicleSelection = showSelectVehiclesMenu(in, getVehicles());
-									if (vehicleSelection == -1) {
-										println(messages.goodBye);
-										break;
-									}
-									if (vehicleSelection == -2) {
-										continue;
-									}
-									v = getVehicles().get(vehicleSelection - 1);
-									println("Selected vehicle is: " + v.getPlate());
-								}
+								//Selecció o creació de vehicle
+								int code = -2;
+								Map<Vehicle, Integer> pair = getNewOrExistingVehicle(in); //Mètode auxiliar
+								for (var entry : pair.entrySet()) {
+									v = entry.getKey();
+									code = entry.getValue();
+								}	
+								if (code == -1)
+									break;
+								if (code == -2)
+									continue;
 								// Final selecció o creació del vehicle ######
 
 								added = addDriverIfNotExists(holder, v);// Intenta afegir el
@@ -230,34 +237,23 @@ public class Main {
 							}
 
 						} else if (menuSelection == 2) { // S'ha seleccionat crear un conductor
-							println("\nInfo: Per a crear un conductor cal seleccionar primer el vehicle que conduirà...");
-							// Inici Selecció o creació del vehicle ########
-							int size = getVehicles().size();
-							if (size == 0) { // Si no existeix cap vehicle, cal crear-ne almenys un.
-								println(messages.emptyVehiclesListError);
-								Map<Vehicle, Integer> pair = createNewVehicle(in, null);
-								int code = 1;
-								for (var entry : pair.entrySet()) {
-									v = entry.getKey();
-									code = entry.getValue();
-								}
-								if (code == -1)
-									break;
-								if (code == 0)
-									continue;
-							} else { // seleccionem un vehicle de la llista
-								int vehicleSelection = showSelectVehiclesMenu(in, getVehicles());
-								if (vehicleSelection == -1) {
-									println(messages.goodBye);
-									break;
-								}
-								if (vehicleSelection == -2) {
-									continue;
-								}
-								v = getVehicles().get(vehicleSelection - 1);
-								println("Selected vehicle is: " + v.getPlate());
-							}
-							// Final selecció o creació del vehicle ######
+														// És obligatori seleccionar un vehicle
+														// o crear un vehicle si no n'hi ha cap
+							println(messages.selectVehicleForDriverInfo);
+							
+							//Selecció o creació de vehicle
+							int code = -2;
+							Map<Vehicle, Integer> pair = getNewOrExistingVehicle(in);
+							for (var entry : pair.entrySet()) {
+								v = entry.getKey();
+								code = entry.getValue();
+							}	
+							if (code == -1)
+								break;
+							if (code == -2)
+								continue;
+							//Final selecció o creació de vehicle
+							
 							Driver driver = buildDriver(in, v); // Crea conductor (cal llicència compatible)
 
 							added = addDriverIfNotExists(driver, v);// Intenta afegir el conductor al
@@ -293,7 +289,9 @@ public class Main {
 				// Afegeix les rodes al vehicle
 				addWheels(in, v);
 
-				boolean holderExists = checkHolder(v);
+				boolean holderExists = checkHolder(v); //En ser un vehicle nou
+													//sempre retornarà false
+													//i caldrà afegir un titular
 
 				if (!holderExists) { // Afegim titular al vehicle
 
@@ -370,6 +368,33 @@ public class Main {
 		in.close();
 	} // Final MAIN
 
+	//Mètode auxiliar per al fluxe de creació o selecció de vehicle
+	private static Map<Vehicle, Integer> getNewOrExistingVehicle(Scanner in){
+		int size = getVehicles().size();
+		Map<Vehicle, Integer> pair;
+		Vehicle v;
+		int code = 1;
+		if (size == 0) { // Si no existeix cap vehicle, cal crear-ne almenys un.
+			println(messages.emptyVehiclesListError);
+			pair = createNewVehicle(in, null);			
+			for (var entry : pair.entrySet()) {
+				v = entry.getKey();
+				code = entry.getValue();
+			}			
+		} else { // seleccionem un vehicle de la llista
+			int vehicleSelection = showSelectVehiclesMenu(in, getVehicles());
+			if (vehicleSelection == -1) {
+				println(messages.goodBye);				
+			}
+			code = vehicleSelection;
+			pair = new HashMap<>();
+			v = getVehicles().get(vehicleSelection - 1);
+			pair.put(v, code);
+			println("Selected vehicle is: " + v.getPlate());
+		}
+		return pair; //key is vehicle; value is: -1 break; 0 continue; n vehicle selection
+	}
+	
 	// Mètode auxiliar de creació d'un nou vehicle
 	private static Map<Vehicle, Integer> createNewVehicle(Scanner in, LicenseType type) {
 		Boolean goToMainMenu = false;
@@ -1144,11 +1169,14 @@ public class Main {
 
 		public final String newVehicleMenu = (new StringBuilder())
 				.append("Vols crear un nou vehicle per al titular %s %s ?").append("\n- Sí (prem s)")
-				.append("\n- No (prem n)").toString();
+				.append("\n- No (prem n)")
+				.append("\nTria una opció: ")
+				.toString();
 
 		public final String wannaAssignVehicleMenu = (new StringBuilder())
 				.append("Vols assignar un vehicle per al nou titular ?").append("\n- Sí (prem s)")
-				.append("\n- No (prem n)").toString();
+				.append("\n- No (prem n)")
+				.append("\nTria una opció: ").toString();
 
 		public final String existingOrNewHolderMenu = (new StringBuilder())
 				.append("\nCal assignar un titular al vehicle: ").append("\n1 - Vull crear un nou titular")
@@ -1156,7 +1184,8 @@ public class Main {
 
 		public final String overwriteHolderMenu = (new StringBuilder()).append(
 				"Vols sobreescriure el titular %s %s \n del vehicle (matrícula %s) seleccionat \n (creant un nou titular)?")
-				.append("\n- Sí (prem s)").append("\n- No (prem n)").toString();
+				.append("\n- Sí (prem s)").append("\n- No (prem n)")
+				.append("\nTria una opció: ").toString();
 
 		// Headers
 		public final String buildHolderHeader = "\n---- Creació d'un TITULAR ----";
@@ -1200,6 +1229,7 @@ public class Main {
 		public final String selectedLicenseType = "LICENSE TYPE SELECTED: %s";
 		public final String wheelsAddingMsg = "\n>>> Afegim les rodes del %s ...";
 		public final String wheelsAddedInfo = "Info: Rodes afegides correctament al vehicle.";
+		public final String selectVehicleForDriverInfo = "\nInfo: Per a crear un conductor cal seleccionar primer el vehicle que conduirà...";
 		public final String vehicleMandatoryForDriverInfo = "\nInfo: Per a crear un conductor, cal seleccionar el vehicle que conduirà.";
 		public final String rear = "darrere";
 		public final String front = "davant";
